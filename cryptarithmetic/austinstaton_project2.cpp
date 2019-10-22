@@ -22,12 +22,16 @@ I will be using resources from cplusplus.com.
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
 
 using std::cin;
 using std::cout;
 using std::endl;
 using std::map;
+using std::vector;
 using std::string;
+
+/************************HELPER FUCTIONS************************/
 
 /********************************************
  * PrintMap() prints the keys and values in a
@@ -63,6 +67,29 @@ int WordToValue(string const &word, map<char, int> const &lookup) {
   return value;
 }
 
+string ValueToWord(int value, map<char, int> &lookup) {
+  // Find the length of the value.
+  int length = 1;
+  int temp_val = value;
+  string word = "";
+  while (temp_val > 0) {
+    length = length + 1;
+    temp_val =temp_val/10;
+  }
+  // Compute the value's string equivalent.
+  for (int i = 0; i < length; ++i) {
+    int to_add = value % 10;
+    value = value / 10;
+    for (map<char, int>::iterator it = lookup.begin();
+            it != lookup.end(); ++it){
+      if (it->second == to_add) {
+        word.append(0, it->first);
+      }
+    }
+  } 
+  return word;
+}
+
 /********************************************************
  * IsValid() checks a candidate solution to the crypt-
  * arithmetic for correctness.
@@ -74,10 +101,44 @@ int WordToValue(string const &word, map<char, int> const &lookup) {
  *******************************************************/
 bool IsValid(string const &addend, string const &addend2,
                string const &end, map<char, int> const &lookup) {
-  int addend_sum = WordToValue(addend, lookup) + WordToValue(addend2, lookup);
+  int addend_sum = WordToValue(addend, lookup) +
+                       WordToValue(addend2, lookup);
   int sum = WordToValue(end, lookup);
   return (addend_sum == sum);
 }
+
+/*****************************************************
+* Permute() is a recursive helper functions for the
+* exhaustve search needed to solve this problem.
+* For each level of the recursion, a different value
+* in the map will be tested. Once we've generated all
+* possible solutions, throught the recursion (i.e.--
+* once the base case is hit) begin to check these
+* possible solutions.
+* Params:
+*     lookup -- a map storing the digits and values.
+*       iter -- an iterator object to move thorugh the
+*                map
+*  solutions -- a vector of possible solutions for use
+*                during the checking. This is passed by
+*                reference, as we will need to modify
+*                the original values.
+*****************************************************/
+int Permute (map<char, int> lookup, auto iter, 
+      vector<map<char,int>> &solutions, ) {
+  // Base Case--we've iterated through the whole map.
+  if (iter == lookup.end()) {
+
+  }
+  // For each letter's possibility
+  for (int i = 0; i < 10; ++i) {
+    iter->second = i;
+  }
+
+  permute(lookup, iter++, );
+}
+
+/***************************EXECUTION FUNCTION***********************/
 
 /******************************************************
 * The Cryptarithmetic Brute-Force Idea:
@@ -109,40 +170,24 @@ int main(int argc, char *argv[]) {
     if (input.at(i) != '+' && input.at(i) != '=') {
       if (digits.find(input.at(i)) == digits.end()){
         // Give the map key an initial value.
-        digits[input.at(i)] = 0;
+        digits[input.at(i)] = i;
       }
     }
   }
   // 2a. Print the map for error checking.
   cout << "MAP INITIALIZATION..." << endl;
-  PrintMap(digits);
+  PrintMap(&digits);
   cout << endl;
   
-  // TODO: For candidate solutions, push_back() values into
-  //       a vector of maps if criteria is met.
-  /*
-    vector<map<char, int>> candidate_solutions;
-    if (IsValid())...){
-      candidate_solutions.push_back(the current map)
-    }
-  */
+  // TODO: Test ValuetoWord()
+  string test = ValueToWord(45, &digits);
+  cout << test << endl;
   
   // 3. Exhaust all possibilites of digits for the words.
   // For each key in the map, i.e.--each digit.
-  for (const auto& pair : digits) {
-    // For each digit value in the map
-    for (const auto& value : digits.second){
-      for (int i = 0; i < 9; ++i) {
+  map<char, int>::iterator it = digits.begin();
+  vector<map<char, int>> candidate_solutions;
+  Permute(&digits, it, &candidate_solutions)
 
-      }
-    }
-  }
   return 0;
 }
-
-int permute (map<char, int> Map, int count) {
-  for (int i = 0; i < Map.size(); ++i) {
-
-  }
-}
-
