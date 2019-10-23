@@ -1,7 +1,7 @@
 /*#########################################################
 Project 2 for CSCE350 solves a cryptartihmetic puzzle.
 Meaning, two english words are added to produce a sum. Each
-Letter in the word correlates to a single digit number.
+letter in the word correlates to a single digit number.
 These numbers do not have to be in the order of [A=0, B=1,
 C=2,D=3,...Z=25]. This ordering is arbitrary. 
 
@@ -10,9 +10,9 @@ for each letter.
 
 Project 2 requires a _Brute-Force_ approach. We know of
 better ways to solve this problem; however, as a learning
-exercise, we must use an exhaustive approach.
+exercise, we must use exhast all options.
 
-Copyright Holder: Austin Staton
+Copyright: Austin Staton
 Date: October 9th, 2019
 
 I will be using resources from cplusplus.com.
@@ -23,6 +23,7 @@ I will be using resources from cplusplus.com.
 #include <string>
 #include <utility>
 #include <vector>
+#include <typeinfo>
 
 using std::cin;
 using std::cout;
@@ -66,7 +67,7 @@ int WordToValue(string const &word, map<char, int> const &lookup) {
   }
   return value;
 }
-
+/*
 string ValueToWord(int value, map<char, int> &lookup) {
   // Find the length of the value.
   int length = 1;
@@ -82,13 +83,19 @@ string ValueToWord(int value, map<char, int> &lookup) {
     value = value / 10;
     for (map<char, int>::iterator it = lookup.begin();
             it != lookup.end(); ++it){
+      //TODO: see why errors are occuring below. 
+      cout << "it->first " << it->first << "  it->second: " <<
+           it->second << " | val: " << to_add << endl;
       if (it->second == to_add) {
-        word.append(0, it->first);
+        //const char * one_char = it->first;
+        //cout << typeid(it->first).name() <<endl;
+        //word.insert(0, one_char);
       }
     }
   } 
   return word;
 }
+*/
 
 /********************************************************
  * IsValid() checks a candidate solution to the crypt-
@@ -123,21 +130,26 @@ bool IsValid(string const &addend, string const &addend2,
 *                during the checking. This is passed by
 *                reference, as we will need to modify
 *                the original values.
-*****************************************************/
-int Permute (map<char, int> lookup, auto iter, 
-      vector<map<char,int>> &solutions, ) {
+*****************************************************
+void Permute (map<char, int> lookup, auto iter, 
+      vector<map<char,int>> &solutions, string addend1, string addend2,
+        string sum) {
   // Base Case--we've iterated through the whole map.
   if (iter == lookup.end()) {
-
+    return;
+  }
+  if (IsValid(addend1, addend2, sum, lookup)){
+    cout << "CORRECT" << endl;
   }
   // For each letter's possibility
   for (int i = 0; i < 10; ++i) {
-    iter->second = i;
+    lookup[iter->first] = i;
+    cout << iter->first << " : " << iter->second << endl; 
   }
 
-  permute(lookup, iter++, );
+  Permute(lookup, ++iter, solutions, addend1, addend2, sum);
 }
-
+*/
 /***************************EXECUTION FUNCTION***********************/
 
 /******************************************************
@@ -170,24 +182,53 @@ int main(int argc, char *argv[]) {
     if (input.at(i) != '+' && input.at(i) != '=') {
       if (digits.find(input.at(i)) == digits.end()){
         // Give the map key an initial value.
-        digits[input.at(i)] = i;
+        digits[input.at(i)] = 0;
       }
     }
   }
   // 2a. Print the map for error checking.
   cout << "MAP INITIALIZATION..." << endl;
-  PrintMap(&digits);
+  PrintMap(digits);
   cout << endl;
   
   // TODO: Test ValuetoWord()
-  string test = ValueToWord(45, &digits);
-  cout << test << endl;
+  //string test = ValueToWord(45, digits);
+  //cout << test << endl;
   
-  // 3. Exhaust all possibilites of digits for the words.
-  // For each key in the map, i.e.--each digit.
-  map<char, int>::iterator it = digits.begin();
+  /* 3. Exhaust all possibilites of digits for the words.
+   * For each key in the map, i.e.--each digit.
+   * THE IDEA:
+   *   - Permute the map by checking each di
+   */
   vector<map<char, int>> candidate_solutions;
-  Permute(&digits, it, &candidate_solutions)
+  int counter=0; 
+  for (map<char, int>::iterator it = digits.begin();
+            it != digits.end(); ++it) {
+    for (int i = 0; i < 10; ++i) {
+      digits[it->first] = i;
+      for (map<char, int>::reverse_iterator rit = digits.rbegin(); 
+          rit!=digits.rend(); ++rit){
+        for (int j = 0; j < 10; ++j) {
+          digits[rit->first] = j;
+          PrintMap(digits);
+          ++counter;
+          cout << endl;
+          if(IsValid(addend1, addend2, sum, digits)){
+            //cout<<"**********CORRECT************"<<endl;
+            candidate_solutions.push_back(digits);
+          }
+        }
+      }  
+    }
+  }
+  cout << counter << endl;
+  cout << endl;
+  cout << "SOLUTIONS" << endl;
+  for (auto &it : candidate_solutions) {
+    PrintMap(it);
+    cout << endl;
+  }
+  //Permute(digits, digits.begin(), candidate_solutions, addend1, addend2, sum);
 
   return 0;
 }
