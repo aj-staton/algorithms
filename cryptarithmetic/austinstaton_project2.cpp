@@ -31,6 +31,7 @@ using std::endl;
 using std::map;
 using std::vector;
 using std::string;
+using std::find;
 
 /************************HELPER FUCTIONS************************/
 
@@ -47,6 +48,10 @@ void PrintMap(map<char, int> const &theMap) {
   for (auto const pair: theMap) {
     cout << "{" << pair.first << ": " << pair.second << "}" << endl;
   }
+}
+
+void PrintSolutions(map<char, int> const &theMap, vector<map<char, int>> &sol) {
+
 }
 
 /****************************************************
@@ -111,6 +116,10 @@ bool IsValid(string const &addend, string const &addend2,
   int addend_sum = WordToValue(addend, lookup) +
                        WordToValue(addend2, lookup);
   int sum = WordToValue(end, lookup);
+  // We know this is a bogus solution.
+  if (addend_sum == 0 && sum == 0) {
+    return false;
+  }
   return (addend_sum == sum);
 }
 
@@ -130,26 +139,25 @@ bool IsValid(string const &addend, string const &addend2,
 *                during the checking. This is passed by
 *                reference, as we will need to modify
 *                the original values.
-*****************************************************
-void Permute (map<char, int> lookup, auto iter, 
-      vector<map<char,int>> &solutions, string addend1, string addend2,
-        string sum) {
+*****************************************************/
+void Permute (const map<char, int> &lookup, auto &iter, const string &addend1,
+        const string &addend2, const string &sum) {
   // Base Case--we've iterated through the whole map.
   if (iter == lookup.end()) {
-    return;
-  }
-  if (IsValid(addend1, addend2, sum, lookup)){
+    PrintMap(lookup);
+    /*if (IsValid(addend1, addend2, sum, lookup)){
     cout << "CORRECT" << endl;
+    }*/
+    return;
   }
   // For each letter's possibility
   for (int i = 0; i < 10; ++i) {
     lookup[iter->first] = i;
-    cout << iter->first << " : " << iter->second << endl; 
+    //cout << iter->first << " : " << iter->second << endl; 
+    Permute(lookup, ++iter, solutions, addend1, addend2, sum);
   }
-
-  Permute(lookup, ++iter, solutions, addend1, addend2, sum);
 }
-*/
+
 /***************************EXECUTION FUNCTION***********************/
 
 /******************************************************
@@ -158,77 +166,101 @@ void Permute (map<char, int> lookup, auto iter,
 *   map. Test all value of this map for equality.
 ******************************************************/
 int main(int argc, char *argv[]) {
-  // 1. Read the input.
-  string input;
-  cin >> input;
-  // 1(a). Parse the input for addends and sum. This is done
-  // for sufficient error checks.
-  int delim1 = input.find('+'); // We assume identical inputs
-  int delim2 = input.find('=');
-  //*Note: substr(x,y) gets Y number of characters after X.
-  string addend1 = input.substr(0, delim1);
-  string addend2 = input.substr(delim1+1, delim2-delim1-1);
-  string sum = input.substr(delim2+1, input.length());
+  string line;
+  while (getline(cin, line)) {
+    // 1. Read the input.
+    string input = line;
+    //cin >> input;
+    // 1(a). Parse the input for addends and sum. This is done
+   // for sufficient error checks.
+    int delim1 = input.find('+'); // We assume identical inputs
+    int delim2 = input.find('=');
+    //*Note: substr(x,y) gets Y number of characters after X.
+    string addend1 = input.substr(0, delim1);
+    string addend2 = input.substr(delim1+1, delim2-delim1-1);
+    string sum = input.substr(delim2+1, input.length());
 
-  cout << "Addend1 is: " << addend1 << endl;
-  cout << "Addend2 is: " << addend2 << endl;
-  cout << "The sum is: " << sum << endl;
-  cout << "Adding these characters to a map..." << endl;
-  cout << endl;
+    cout << "Addend1 is: " << addend1 << endl;
+    cout << "Addend2 is: " << addend2 << endl;
+    cout << "The sum is: " << sum << endl;
+    cout << "Adding these characters to a map..." << endl;
+    cout << endl;
   
-  // 2. Create Table of all letters.
-  map<char, int> digits;
-  for (unsigned int i = 0; i < input.length(); ++i) {
-    if (input.at(i) != '+' && input.at(i) != '=') {
-      if (digits.find(input.at(i)) == digits.end()){
-        // Give the map key an initial value.
-        digits[input.at(i)] = 0;
+    // 2. Create Table of all letters.
+    map<char, int> digits;
+    for (unsigned int i = 0; i < input.length(); ++i) {
+      if (input.at(i) != '+' && input.at(i) != '=') {
+        if (digits.find(input.at(i)) == digits.end()){
+          // Give the map key an initial value.
+          digits[input.at(i)] = 0;
+        }
       }
     }
-  }
-  // 2a. Print the map for error checking.
-  cout << "MAP INITIALIZATION..." << endl;
-  PrintMap(digits);
-  cout << endl;
-  
-  // TODO: Test ValuetoWord()
-  //string test = ValueToWord(45, digits);
-  //cout << test << endl;
-  
-  /* 3. Exhaust all possibilites of digits for the words.
-   * For each key in the map, i.e.--each digit.
-   * THE IDEA:
-   *   - Permute the map by checking each di
-   */
-  vector<map<char, int>> candidate_solutions;
-  int counter=0; 
-  for (map<char, int>::iterator it = digits.begin();
-            it != digits.end(); ++it) {
-    for (int i = 0; i < 10; ++i) {
-      digits[it->first] = i;
-      for (map<char, int>::reverse_iterator rit = digits.rbegin(); 
-          rit!=digits.rend(); ++rit){
-        for (int j = 0; j < 10; ++j) {
-          digits[rit->first] = j;
-          PrintMap(digits);
-          ++counter;
-          cout << endl;
-          if(IsValid(addend1, addend2, sum, digits)){
-            //cout<<"**********CORRECT************"<<endl;
-            candidate_solutions.push_back(digits);
-          }
-        }
-      }  
-    }
-  }
-  cout << counter << endl;
-  cout << endl;
-  cout << "SOLUTIONS" << endl;
-  for (auto &it : candidate_solutions) {
-    PrintMap(it);
+    // 2a. Print the map for error checking.
+    cout << "MAP INITIALIZATION..." << endl;
+    PrintMap(digits);
     cout << endl;
-  }
-  //Permute(digits, digits.begin(), candidate_solutions, addend1, addend2, sum);
+  
+    // TODO: Test ValuetoWord()
+    //string test = ValueToWord(45, digits);
+    //cout << test << endl;
+  
+    /* 3. Exhaust all possibilites of digits for the words.
+     * For each key in the map, i.e.--each digit.
+     * THE IDEA:
+     *   - Permute the map by checking each digit
+     *   - Store map possibilites in a vector.
+     */
+    vector<map<char, int>> candidate_solutions;
+    int counter=0; 
+    // Begin at the first value of the map. 
+    for (map<char, int>::iterator it = digits.begin();
+              it != digits.end(); ++it) {
+      // Give it all possibilities of [0,9].
+      for (int i = 0; i < 10; ++i) {
+        digits[it->first] = i;
+        // Cycle through the remainder of the map.
+        for (map<char, int>::reverse_iterator rit = digits.rbegin(); 
+            rit!=digits.rend(); ++rit){
+          //Assign the remainder all possible values.
+          for (int j = 0; j < 10; ++j) {
+            digits[rit->first] = j;
+            PrintMap(digits);
+            ++counter;
+            cout << endl;
+            if(IsValid(addend1, addend2, sum, digits)){
+              cout<<"**********CORRECT************"<<endl;
+              //TODO : dont' add duplicates
+              candidate_solutions.push_back(digits);
+            }
+          }
+        }    
+      }
+    }
 
+    cout << counter << endl;
+    cout << endl;
+    cout << "SOLUTIONS" << endl;
+    for (auto &it : candidate_solutions) {
+      PrintMap(it);
+      cout << endl;
+    }
+    // Print solutions
+    if (candidate_solutions.empty() == true) {
+      cout << "no solution" << endl; 
+    } else {
+      for (unsigned int i = 0; i < input.length(); ++i) {
+        char x = input.at(i);
+        if (x == '=' || x == '+') {
+          cout << x;
+        } else {
+    
+        }
+      }
+      cout << endl;
+    }
+
+    
+  } // ENDWHILE
   return 0;
 }
