@@ -10,6 +10,6 @@ $ g++ - Wall austinstaton_project2.cpp -o [youroutput]
 $ ./[youroutput] < inputALL.in
 ```
 This program reads from standard input. So, if no input file is redirected, type an orignal cryptarithmetic puzzle to solve after execution. This input must be in the format of:
-  [addend]+[addend]=[sum]
-  Example: send+more=money
+   [addend]+[addend]=[sum]
+    Example: send+more=money
 This project focused on the algorithmic problem-solving, rather than bounds checking and error detection.
