@@ -5,5 +5,8 @@
 
 FILE="austinstaton_project2.cpp"
 
+
+reset
+rm Aprog
 g++  $FILE -o Aprog
-time ./Aprog < input1.in
+time ./Aprog < inputALL.in

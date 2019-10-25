@@ -1,14 +1,16 @@
 /*#########################################################
-Project 2 for CSCE350 solves a cryptartihmetic puzzle.
+Project 2 for CSCE 350 solves a cryptartihmetic puzzle.
 Meaning, two english words are added to produce a sum. Each
 letter in the word correlates to a single digit number.
 These numbers do not have to be in the order of [A=0, B=1,
 C=2,D=3,...Z=25]. This ordering is arbitrary. 
 
+Example: send+more=money --> 9567=1085=10652
+
 The goal is to SOLVE this puzzle, by computing the value
 for each letter.
 
-Project 2 requires a _Brute-Force_ approach. We know of
+Project 2 requires a Brute-Force approach. We know of
 better ways to solve this problem; however, as a learning
 exercise, we must use exhast all options.
 
@@ -24,6 +26,8 @@ I will be using resources from cplusplus.com.
 #include <utility>
 #include <vector>
 #include <typeinfo>
+#include <iterator> // Next()
+#include <iostream> // static casting. 
 
 using std::cin;
 using std::cout;
@@ -45,15 +49,11 @@ using std::find;
  * 	          is not modified.
  *******************************************/
 void PrintMap(map<char, int> const &theMap) {
+  cout << endl;
   for (auto const pair: theMap) {
     cout << "{" << pair.first << ": " << pair.second << "}" << endl;
   }
 }
-
-void PrintSolutions(map<char, int> const &theMap, vector<map<char, int>> &sol) {
-
-}
-
 /****************************************************
  * WordToValue() computes the numerical value of a
  * word. This will be used to support testing each
@@ -72,57 +72,61 @@ int WordToValue(string const &word, map<char, int> const &lookup) {
   }
   return value;
 }
-/*
-string ValueToWord(int value, map<char, int> &lookup) {
-  // Find the length of the value.
-  int length = 1;
-  int temp_val = value;
-  string word = "";
-  while (temp_val > 0) {
-    length = length + 1;
-    temp_val =temp_val/10;
-  }
-  // Compute the value's string equivalent.
-  for (int i = 0; i < length; ++i) {
-    int to_add = value % 10;
-    value = value / 10;
-    for (map<char, int>::iterator it = lookup.begin();
-            it != lookup.end(); ++it){
-      //TODO: see why errors are occuring below. 
-      cout << "it->first " << it->first << "  it->second: " <<
-           it->second << " | val: " << to_add << endl;
-      if (it->second == to_add) {
-        //const char * one_char = it->first;
-        //cout << typeid(it->first).name() <<endl;
-        //word.insert(0, one_char);
-      }
-    }
-  } 
-  return word;
-}
-*/
-
 /********************************************************
  * IsValid() checks a candidate solution to the crypt-
  * arithmetic for correctness.
  * Params: 
- * 	 addend -- the first word to "add"
+ * 	 addend1 -- the first word to "add"
  * 	addend2 -- the second word t0 "add"
  *      end -- the two addends percieved sum
  *   theMap -- a map to support the use of WordToValue()
  *******************************************************/
-bool IsValid(string const &addend, string const &addend2,
+bool IsValid(string const &addend1, string const &addend2,
                string const &end, map<char, int> const &lookup) {
-  int addend_sum = WordToValue(addend, lookup) +
+  int addend_sum = WordToValue(addend1, lookup) +
                        WordToValue(addend2, lookup);
   int sum = WordToValue(end, lookup);
   // We know this is a bogus solution.
+  if (lookup.at(addend1.at(0)) == 0 || lookup.at(addend2.at(0)) == 0 ||
+        lookup.at(end.at(0))==0) {
+    return false;
+  }
   if (addend_sum == 0 && sum == 0) {
     return false;
   }
   return (addend_sum == sum);
 }
-
+/******************************************************
+ * PrintSolution() will parse the inputted addends and
+ * sum, all of which are correct, and print them to 
+ * standard output. It will go letter-by-letter in the
+ * addends and the sum to create the output string.
+ * Params:
+ *     addend1 -- the first portion of the std input
+ *     addend2 -- the second portion of the std input
+ *         sum -- the total sum of the std input
+ *      lookup -- a table of values for char->int
+ *****************************************************/
+void PrintSolution(string const &addend1, string const &addend2,
+                string const &sum, map<char, int> const &lookup){
+  for (unsigned int i = 0; i < addend1.length(); ++i) {
+      char letter = addend1.at(i);
+      int letter_value = lookup.at(letter);
+      cout << letter_value;
+  }
+  cout << "+";
+  for (unsigned int i = 0; i < addend2.length(); ++i) {
+      char letter = addend2.at(i);
+      int letter_value = lookup.at(letter);
+      cout << letter_value;
+  }
+  cout << "=";
+  for (unsigned int i = 0; i < sum.length(); ++i) {
+      char letter = sum.at(i);
+      int letter_value = lookup.at(letter);
+      cout << letter_value;
+  }
+}
 /*****************************************************
 * Permute() is a recursive helper functions for the
 * exhaustve search needed to solve this problem.
@@ -133,32 +137,34 @@ bool IsValid(string const &addend, string const &addend2,
 * possible solutions.
 * Params:
 *     lookup -- a map storing the digits and values.
-*       iter -- an iterator object to move thorugh the
-*                map
-*  solutions -- a vector of possible solutions for use
-*                during the checking. This is passed by
-*                reference, as we will need to modify
-*                the original values.
+*      start -- an iterator object to move thorugh the map
+*        end -- the iterative end of the parsed map
+*    addend1 -- the first portion of the cryptarithmetic sum
+*    addend2 -- the second portion of the cryptarithmetic sum
+*        sum -- the intended value for the cryptarithmetic sum
 *****************************************************/
-void Permute (const map<char, int> &lookup, auto &iter, const string &addend1,
-        const string &addend2, const string &sum) {
+void Permute (map<char, int> const &lookup, map<char, int>::iterator const &start,
+        map<char, int>::iterator const &end, int &num_correct,
+         string const &addend1, string const &addend2, string const &sum) {
   // Base Case--we've iterated through the whole map.
-  if (iter == lookup.end()) {
-    PrintMap(lookup);
-    /*if (IsValid(addend1, addend2, sum, lookup)){
-    cout << "CORRECT" << endl;
-    }*/
+  if (start == end) {
+    if (IsValid(addend1, addend2, sum, lookup)){
+      PrintSolution(addend1, addend2, sum, lookup);
+      //PrintMap(lookup);
+      ++num_correct;
+      cout << endl;
+    }
     return;
   }
-  // For each letter's possibility
+  // At each layer of recursion, assign a new value to a letter.
   for (int i = 0; i < 10; ++i) {
-    lookup[iter->first] = i;
-    //cout << iter->first << " : " << iter->second << endl; 
-    Permute(lookup, ++iter, solutions, addend1, addend2, sum);
+    start->second = i;
+    Permute(lookup, next(start, 1), end, num_correct, addend1, addend2, sum);
   }
 }
 
-/***************************EXECUTION FUNCTION***********************/
+
+/***************************EXECUTION**************************/
 
 /******************************************************
 * The Cryptarithmetic Brute-Force Idea:
@@ -172,95 +178,50 @@ int main(int argc, char *argv[]) {
     string input = line;
     //cin >> input;
     // 1(a). Parse the input for addends and sum. This is done
-   // for sufficient error checks.
+    // for sufficient error checks.
     int delim1 = input.find('+'); // We assume identical inputs
     int delim2 = input.find('=');
     //*Note: substr(x,y) gets Y number of characters after X.
     string addend1 = input.substr(0, delim1);
     string addend2 = input.substr(delim1+1, delim2-delim1-1);
     string sum = input.substr(delim2+1, input.length());
-
+    /*
     cout << "Addend1 is: " << addend1 << endl;
     cout << "Addend2 is: " << addend2 << endl;
     cout << "The sum is: " << sum << endl;
     cout << "Adding these characters to a map..." << endl;
     cout << endl;
-  
+    */
     // 2. Create Table of all letters.
     map<char, int> digits;
     for (unsigned int i = 0; i < input.length(); ++i) {
       if (input.at(i) != '+' && input.at(i) != '=') {
         if (digits.find(input.at(i)) == digits.end()){
           // Give the map key an initial value.
-          digits[input.at(i)] = 0;
+          digits[input.at(i)] = i;
         }
       }
     }
     // 2a. Print the map for error checking.
+    /*
     cout << "MAP INITIALIZATION..." << endl;
     PrintMap(digits);
     cout << endl;
-  
-    // TODO: Test ValuetoWord()
-    //string test = ValueToWord(45, digits);
-    //cout << test << endl;
-  
+    */
     /* 3. Exhaust all possibilites of digits for the words.
      * For each key in the map, i.e.--each digit.
      * THE IDEA:
      *   - Permute the map by checking each digit
-     *   - Store map possibilites in a vector.
      */
-    vector<map<char, int>> candidate_solutions;
-    int counter=0; 
-    // Begin at the first value of the map. 
-    for (map<char, int>::iterator it = digits.begin();
-              it != digits.end(); ++it) {
-      // Give it all possibilities of [0,9].
-      for (int i = 0; i < 10; ++i) {
-        digits[it->first] = i;
-        // Cycle through the remainder of the map.
-        for (map<char, int>::reverse_iterator rit = digits.rbegin(); 
-            rit!=digits.rend(); ++rit){
-          //Assign the remainder all possible values.
-          for (int j = 0; j < 10; ++j) {
-            digits[rit->first] = j;
-            PrintMap(digits);
-            ++counter;
-            cout << endl;
-            if(IsValid(addend1, addend2, sum, digits)){
-              cout<<"**********CORRECT************"<<endl;
-              //TODO : dont' add duplicates
-              candidate_solutions.push_back(digits);
-            }
-          }
-        }    
-      }
+    // The iterator needed by Permute() to traverse the map
+    map<char, int>::iterator start = digits.begin();
+    map<char, int>::iterator end = digits.end();
+    int correct_answers = 0;
+    Permute(digits, start, end, correct_answers, addend1, addend2, sum);
+    if (correct_answers == 0) {
+      cout << "no solution" << endl;
     }
-
-    cout << counter << endl;
     cout << endl;
-    cout << "SOLUTIONS" << endl;
-    for (auto &it : candidate_solutions) {
-      PrintMap(it);
-      cout << endl;
-    }
-    // Print solutions
-    if (candidate_solutions.empty() == true) {
-      cout << "no solution" << endl; 
-    } else {
-      for (unsigned int i = 0; i < input.length(); ++i) {
-        char x = input.at(i);
-        if (x == '=' || x == '+') {
-          cout << x;
-        } else {
-    
-        }
-      }
-      cout << endl;
-    }
-
-    
   } // ENDWHILE
   return 0;
 }
