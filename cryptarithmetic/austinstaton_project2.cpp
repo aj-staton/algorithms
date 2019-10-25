@@ -74,6 +74,8 @@ int WordToValue(string const &word, map<char, int> const &lookup) {
 /******************************************************
  * HasDuplicates() will determine if a map has duplicate
  * values to the keys within it.
+ * TODO: Find a more efficient way to handle checking
+ * for duplicates.
  * Param:
  *   lookup -- a map of with char->int. This function
  *          will check for duplicate values (ints).
