@@ -25,9 +25,8 @@ I will be using resources from cplusplus.com.
 #include <string>
 #include <utility>
 #include <vector>
-#include <typeinfo>
-#include <iterator> // Next()
-#include <iostream> // static casting. 
+#include <iterator>
+#include <algorithm> //Count()
 
 using std::cin;
 using std::cout;
@@ -72,6 +71,25 @@ int WordToValue(string const &word, map<char, int> const &lookup) {
   }
   return value;
 }
+/******************************************************
+ * HasDuplicates() will determine if a map has duplicate
+ * values to the keys within it.
+ * Param:
+ *   lookup -- a map of with char->int. This function
+ *          will check for duplicate values (ints).
+ *****************************************************/
+bool HasDuplicates(map<char, int> &lookup) {
+  vector<int> values;
+  int dup = 0;
+  for (map<char, int>::iterator it = lookup.begin(); it!= lookup.end(); ++it) {
+      dup = count(values.begin(), values.end(), it->second);
+      if (dup != 0) {
+        return true;
+      }
+      values.push_back(it->second);
+  }
+  return false;
+}
 /********************************************************
  * IsValid() checks a candidate solution to the crypt-
  * arithmetic for correctness.
@@ -82,13 +100,16 @@ int WordToValue(string const &word, map<char, int> const &lookup) {
  *   theMap -- a map to support the use of WordToValue()
  *******************************************************/
 bool IsValid(string const &addend1, string const &addend2,
-               string const &end, map<char, int> const &lookup) {
+               string const &end, map<char, int> &lookup) {
   int addend_sum = WordToValue(addend1, lookup) +
                        WordToValue(addend2, lookup);
   int sum = WordToValue(end, lookup);
   // We know this is a bogus solution.
   if (lookup.at(addend1.at(0)) == 0 || lookup.at(addend2.at(0)) == 0 ||
         lookup.at(end.at(0))==0) {
+    return false;
+  }
+  if (HasDuplicates(lookup)) {
     return false;
   }
   if (addend_sum == 0 && sum == 0) {
@@ -143,7 +164,7 @@ void PrintSolution(string const &addend1, string const &addend2,
 *    addend2 -- the second portion of the cryptarithmetic sum
 *        sum -- the intended value for the cryptarithmetic sum
 *****************************************************/
-void Permute (map<char, int> const &lookup, map<char, int>::iterator const &start,
+void Permute (map<char, int> &lookup, map<char, int>::iterator const &start,
         map<char, int>::iterator const &end, int &num_correct,
          string const &addend1, string const &addend2, string const &sum) {
   // Base Case--we've iterated through the whole map.
@@ -162,18 +183,15 @@ void Permute (map<char, int> const &lookup, map<char, int>::iterator const &star
     Permute(lookup, next(start, 1), end, num_correct, addend1, addend2, sum);
   }
 }
-
-
-/***************************EXECUTION**************************/
-
+/**********************EXECUTION**********************/
 /******************************************************
 * The Cryptarithmetic Brute-Force Idea:
-*   Read the input, then put all of its digits into a 
-*   map. Test all value of this map for equality.
+* Read the input, then put all of its digits into a 
+* map. Test all value of this map for equality.
 ******************************************************/
 int main(int argc, char *argv[]) {
   string line;
-  while (getline(cin, line)) {
+  while (getline(cin, line) && cin.eof() != true) {
     // 1. Read the input.
     string input = line;
     //cin >> input;
@@ -198,7 +216,7 @@ int main(int argc, char *argv[]) {
       if (input.at(i) != '+' && input.at(i) != '=') {
         if (digits.find(input.at(i)) == digits.end()){
           // Give the map key an initial value.
-          digits[input.at(i)] = i;
+          digits[input.at(i)] = 0;
         }
       }
     }
