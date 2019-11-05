@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# This is a one-file project. I don't need a makefile, but want
+# to simplify my time.
+
+FILE="austinstaton_project3.cpp"
+
+rm Aprog
+g++  $FILE -o Aprog
+./Aprog < input1.in

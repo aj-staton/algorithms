@@ -29,10 +29,76 @@ I will be using resources from cplusplus.com
 using std::cin;
 using std::cout;
 using std::endl;
+using std::stoi; // String to Integer
 using std::vector;
 using std::string;
 
-int main(int argc, char *argv[]) {
+/*********************************************************
+ * PrintVector() is a helper function to deliver the large
+ * numbers to standard output.
+ * Param:
+ *     theVector -- the vector to be printed.
+ ********************************************************/
+void PrintVector(vector<int> const &theVector) {
+  for (auto const x: theVector) {
+    cout << x;
+  }
+  cout << endl;
+}
 
+/*********************************************************
+ * Sum() will compute the sum of two numbers where indiv-
+ * idual values are stored in vectors. 
+ * Params:
+ *     a -- the first addend vector
+ *     b -- the second addend vector
+ ********************************************************/
+vector<int> Sum(vector<int> const &a, vector<int> const &b) {
+  if (a.size() > b.size()) {
+
+  } else {
+
+  }
+  return sum;
+}
+/*********************************************************
+ * 
+ ********************************************************/
+vector<int> BruteForceMultiply(vector<int> const &a, vector<int> const &b) {
+  vector<int> product;
+  
+  return product; 
+}
+
+/********************************************************
+ * 
+ *******************************************************/
+vector<int> KaratsubaMultiply(vector<int> const &a, vector<int> const &b) {
+  vector<int> product;
+  return product;
+}
+
+int main(int argc, char *argv[]) {
+  string input;
+  cin >> input;
+
+  // Fill vectors with the inputted values. 
+  vector<int> a,b; // 'a' is first factor; 'b' is the second.
+  int split_position = input.find("*");
+  for (unsigned int i = 0; i < split_position; ++i) {
+    a.push_back(input.at(i) - 48); // ASCII integers start at 48.
+  }
+  for (unsigned int i = split_position + 1; i < input.length(); ++i) {
+    b.push_back(input.at(i) - 48); // ASCII integers start at 48.
+  }
+  //PrintVector(a);
+  //PrintVector(b);
+
+  vector<int> bf = BruteForceMultiply(a, b);
+  cout << "B: " << PrintVector(bf);
+  /*
+  vector<int> k = KaratsubaMultiply(a,b);
+  cout << "K: " << PrintVector(k); 
+  */
   return 0;
 }
