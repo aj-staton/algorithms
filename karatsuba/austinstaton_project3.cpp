@@ -41,9 +41,14 @@ using std::string;
  *     theVector -- the vector to be printed.
  ********************************************************/
 void PrintVector(vector<int> const &theVector) {
-  for (auto const x: theVector) {
-    cout << x << " ";
+  cout << "[";
+  for (unsigned int i = 0; i < theVector.size(); ++i) {
+    cout << theVector.at(i);
+    if (i != theVector.size()-1) {
+      cout << ",";
+    }
   }
+  cout << "]";
 }
 /*********************************************************
  *  CorrectVector() is a helper function for Sum(). When
@@ -101,7 +106,7 @@ vector<int> Sum(vector<int> const &a, vector<int> const &b) {
   cout << "Correcting the computed sum of ...";
   PrintVector(sum);
   CorrectVector(sum);
-  cout << "to ";
+  cout << " to ";
   PrintVector(sum);
   cout << endl;
   return sum;
@@ -129,9 +134,24 @@ vector<int> BruteForceMultiply(vector<int> const &a, vector<int> const &b) {
   return product; 
 }
 
-/********************************************************
+/*********************************************************
+ * KaratsubaMultiply() multiplys together two vectors of
+ * digits in a more efficient manner than the grade-school
+ * mulitplication method. It does this by doing LESS com-
+ * putationally expensive work more often, while doing
+ * MORE computationally expensive work less often. The
+ * algorithm computes this tradeoff with algebra:
+ * a*b = x2*10^2m + x1*10^m + x0
+ *  x2 = a1*b1
+ *  x1 = a1*b0+b1*a0
+ *  x0 = a0*b0
  * 
- *******************************************************/
+ * Time Efficincy: n^(logbase(2,3)) ~= n^(1.58)
+ *  
+ * Params:
+ *     a -- the first factor
+ *     b -- the second factor
+ ********************************************************/
 vector<int> KaratsubaMultiply(vector<int> const &a, vector<int> const &b) {
   vector<int> product;
   return product;
