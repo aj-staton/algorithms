@@ -42,55 +42,68 @@ using std::string;
  ********************************************************/
 void PrintVector(vector<int> const &theVector) {
   for (auto const x: theVector) {
-    cout << x;
+    cout << x << " ";
   }
 }
 /*********************************************************
  *  CorrectVector() is a helper function for Sum(). When
  *  computing the sum, I don't manage a carrying digit to
  *  add to the next highest digit value. This function
- *  is what fixes that error.
+ *  is what fixes that error. 
+ *  NOTE: this can also be used to correct something like
+ *        [8,16,24,32] to [9,8,7,2] for multiplication 
  *  Param:
  *      theVector -- the vector that needs correction
+ * 
  *      e.g. -- [6, 6, 6] + [6, 6, 6] = [12, 12, 12]
- *         After Correction: [12, 12, 12] = [1, 3, 3, 2] 
+ *      After Correction: [12, 12, 12] = [1, 3, 3, 2] 
  ********************************************************/
 void CorrectVector(vector<int> &theVector) {
   for (unsigned int i = theVector.size()-1; i != 0; --i) {
     if (theVector.at(i) > 9 && i != 0) {
-      theVector.at(i) -= 10;
-      theVector.at(i-1)++;
+      int big = theVector.at(i) / 10;
+      int little = theVector.at(i) % 10;
+      theVector.at(i-1) += big;
+      theVector.at(i) = little;
     }
     else if (theVector.at(i) > 9 && i == 0) {
-      theVector.at(i) -= 10;
-      theVector.insert(theVector.begin(), 1);
+      int big = theVector.at(i) / 10;
+      int little = theVector.at(i) % 10;
+      theVector.insert(theVector.begin(), big);
+      theVector.at(i) = little;
     }
-  } 
+  }
 }
 
-/*********************************************************
+/***********************************************************
  * Sum() will compute the sum of two numbers where indiv-
- * idual values are stored in vectors.
+ * idual values are stored in vectors. See "CorrectVector()"
+ * for the handling of carry-over digits.
  * Params:
  *     a -- the first addend vector
  *     b -- the second addend vector
  ********************************************************/
 vector<int> Sum(vector<int> const &a, vector<int> const &b) {
-  cout << "Sum()" << endl;
-  vector<int> sum;
-  if (a.size() > b.size()) {
-    sum = a; 
-    for (unsigned int i = 0; i < a.size(); ++i) {
-      sum[i] += b[i];
-    }
-  } else {
-    sum = b;
-    for (unsigned int i = 0; i < b.size(); ++i) {
-      sum[i] += a[i];
-    }
+  // Logging
+  cout << "Computing the sum of...";
+  PrintVector(a);
+  cout << " + ";
+  PrintVector(b);
+  cout << endl;
+  // EndLogging
+
+  vector<int> sum = a; 
+  for (unsigned int i = 0; i < a.size(); ++i) {
+    sum[i] += b[i];
   }
-  CorrectVector(sum)
-  //TODO: UNIT TEST THIS
+  
+  // Fix the lack of carrying digits.
+  cout << "Correcting the computed sum of ...";
+  PrintVector(sum);
+  CorrectVector(sum);
+  cout << "to ";
+  PrintVector(sum);
+  cout << endl;
   return sum;
 }
 /*********************************************************
@@ -99,12 +112,20 @@ vector<int> Sum(vector<int> const &a, vector<int> const &b) {
  * elementary school. A product of the multiplication will
  * be returned from the function.
  * Params:
- *     a -- the first vector factor
- *     b -- the second vector factor
+ *     a -- the first factor
+ *     b -- the second factor
  ********************************************************/
 vector<int> BruteForceMultiply(vector<int> const &a, vector<int> const &b) {
   vector<int> product;
- 
+  vector<int> temp;
+  
+  for (unsigned int i = a.size()-1; i != 0; --i) {
+    for (unsigned int j = b.size()-1; i != 0; --j) {
+  
+    }
+  }
+
+
   return product; 
 }
 
@@ -114,6 +135,7 @@ vector<int> BruteForceMultiply(vector<int> const &a, vector<int> const &b) {
 vector<int> KaratsubaMultiply(vector<int> const &a, vector<int> const &b) {
   vector<int> product;
   return product;
+
 }
 
 int main(int argc, char *argv[]) {
@@ -129,24 +151,30 @@ int main(int argc, char *argv[]) {
   for (unsigned int i = split_position + 1; i < input.length(); ++i) {
     b.push_back(input.at(i) - 48); // ASCII integers start at 48.
   }
-  //PrintVector(a);
-  //cout << endl;
-  //PrintVector(b);
-  //cout << endl;
-
-
-  vector<int> c;
-  for (int i = 0; i < 4; ++i) {
-    c.push_back(12);
-  }
-  PrintVector(c); 
+  cout << "A: ";
+  PrintVector(a);
   cout << endl;
-  CorrectVector(c);
-  PrintVector(c);
-  /*
+  cout << "B: ";
+  PrintVector(b);
+  cout << endl;
+
+  // I make both vectors an equivalent size with leading zeros.
+  // This makes computations more simple in iteration.
+  if (a.size() > b.size()) {
+   int difference = a.size() - b.size();
+   for (int i = 0; i < difference; ++i) {
+     b.insert(b.begin(), 0);
+   }
+  } else if (b.size() > a.size()) {
+    int difference = b.size() - a.size();
+    for (int i = 0; i < difference; ++i) {
+      a.insert(a.begin(), 0);
+    }
+  }
+
   vector<int> sum = Sum(a,b);
-  PrintVector(sum);
-  */ 
+  cout << endl;
+  
   /*
   vector<int> bf = BruteForceMultiply(a, b);
   cout << "B: " << PrintVector(bf) << endl;
