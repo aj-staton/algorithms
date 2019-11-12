@@ -14,7 +14,7 @@ This file will solve this problem in two ways:
 	1234     This algorithm takes n^2 time.
      + 24680
        25914
- 2) The Karatsube Algorithm. This algorithm is much more
+ 2) The Karatsuba Algorithm. This algorithm is much more
     efficient, taking n^~1.58 time.
 
 Copyright: Austin Staton
@@ -47,6 +47,55 @@ void PrintVector(vector<int> const &theVector) {
     }
   }
   cout << "]";
+}
+/******************************************************
+ * BalanceVectorSize() adds leading zeros to the front
+ * of vectors. This makes calculations much easier,
+ * since the size of vectors do not vary in for loops.
+ * Params:
+ *     a -- the first vector
+ *     b -- the second vector
+ *****************************************************/
+void BalanceVectorSize(vector<int> &a, vector<int> &b) {
+  if (a.size() > b.size()) {
+   int difference = a.size() - b.size();
+   for (int i = 0; i < difference; ++i) {
+     b.insert(b.begin(), 0);
+   }
+  } else if (b.size() > a.size()) {
+    int difference = b.size() - a.size();
+    for (int i = 0; i < difference; ++i) {
+      a.insert(a.begin(), 0);
+    }
+  }
+}
+/*******************************************************
+ * RemoveZeros() removes any leading, non-significant
+ * zeros from the front of a vector. This has to be done
+ * because of the use of the BalanceVectorSize()
+ * function, which adds leading zeros.
+ * This function exists for the pretty formatiing of
+ * output.  e.g. - [0,0,4,5,6,0,0] >> [4,5,6,0,0]
+ * Param:
+ *     a -- the vector to remove the leading zeros from
+ ******************************************************/
+void RemoveZeros(vector<int> &a) {
+  // Find the first significant digit.
+  int first_real_number = -1;
+  for (int i = 0; i < a.size(); ++i) {
+    if (a.at(i) != 0) {
+      first_real_number = i;
+      break;
+    }
+  }
+  // Leave if the array is filled with 0's. 
+  if (first_real_number == -1) {
+    return;
+  }
+  // Delete the non-significant digits.
+  for (int i = 0; i < first_real_number; ++i) {
+    a.erase(a.begin());
+  }
 }
 /*********************************************************
  * CorrectVector() is a helper function for Sum(). When
@@ -107,24 +156,23 @@ vector<int> E(vector<int> &a, int power) {
  *     a -- the first addend vector
  *     b -- the second addend vector
  ********************************************************/
-vector<int> Sum(vector<int> const &a, vector<int> const &b) {
+vector<int> Sum(vector<int> &a, vector<int> &b) {
+  BalanceVectorSize(a, b);
+
   // Logging
   cout << "Computing the sum of...";
   PrintVector(a);
   cout << " + ";
   PrintVector(b);
-  cout << endl;
+  cout <<  " = " << endl;
   // EndLogging
 
   vector<int> sum = a; 
-  for (unsigned int i = 0; i < a.size(); ++i) {
+  for (unsigned int i = a.size()-1; i != -1; --i) {
     sum[i] += b[i];
   }
   // Fix the lack of carrying digits.
-  cout << "Correcting the computed sum of ...";
-  PrintVector(sum);
   CorrectVector(sum);
-  cout << " to ";
   PrintVector(sum);
   cout << endl;
   return sum;
@@ -138,7 +186,6 @@ vector<int> Sum(vector<int> const &a, vector<int> const &b) {
  *   digit -- the integer to multiply by
  *************************************************************/
 vector<int> VectorDigitProduct(vector<int> a, int digit) {
-  // TODO: TEST THIS FUNCTION
   for (int i = 0; i < a.size(); ++i) {
     a.at(i) *= digit;
   }
@@ -156,16 +203,22 @@ vector<int> VectorDigitProduct(vector<int> a, int digit) {
  *     a -- the first factor
  *     b -- the second factor
  ********************************************************/
-vector<int> BruteForceMultiply(vector<int> const &a, vector<int> const &b) {
-  vector<int> product;
+vector<int> BruteForceMultiply(vector<int> &a, vector<int> &b) {
+  BalanceVectorSize(a,b);
+  vector<int> product(a.size(), 0); // Make a vector equal in length, equal to 0.
   vector<int> temp;
-  
-  for (unsigned int i = a.size()-1; i != 0; --i) {
-    for (unsigned int j = b.size()-1; i != 0; --j) {
-  
-    }
-  }
 
+  int counter_for_appending_zeros = 0;
+  for (unsigned int i = a.size()-1; i != -1; --i) {
+    temp = VectorDigitProduct(a, b.at(i));
+    for (int i = 0; i < counter_for_appending_zeros; ++i) {
+      temp.push_back(0);
+    }
+    product = Sum(product, temp);
+    counter_for_appending_zeros += 1;
+  }
+  // Format for output.
+  RemoveZeros(product);
   return product; 
 }
 
@@ -193,6 +246,7 @@ vector<int> KaratsubaMultiply(vector<int> const &a, vector<int> const &b) {
 
 }
 
+/********************* Execution Function *******************/
 int main(int argc, char *argv[]) {
   string input;
   cin >> input;
@@ -212,25 +266,12 @@ int main(int argc, char *argv[]) {
   cout << "B: ";
   PrintVector(b);
   cout << endl;
-
-  // I make both vectors an equivalent size with leading zeros.
-  // This makes computations more simple in iteration.
-  if (a.size() > b.size()) {
-   int difference = a.size() - b.size();
-   for (int i = 0; i < difference; ++i) {
-     b.insert(b.begin(), 0);
-   }
-  } else if (b.size() > a.size()) {
-    int difference = b.size() - a.size();
-    for (int i = 0; i < difference; ++i) {
-      a.insert(a.begin(), 0);
-    }
-  }
   
-  /*
   vector<int> bf = BruteForceMultiply(a, b);
-  cout << "B: " << PrintVector(bf) << endl;
-  */
+  cout << "B: ";
+  PrintVector(bf);
+  cout << endl;
+
   /*
   vector<int> k = KaratsubaMultiply(a,b);
   cout << "K: " << PrintVector(k) << endl; 
