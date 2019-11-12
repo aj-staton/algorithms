@@ -1,3 +1,2 @@
 # algorithms
-"step-by-step procedures for solving problems"
--Merriam-Webber
+"step-by-step procedures for solving problems" -Merriam-Webster
