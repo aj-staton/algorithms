@@ -25,8 +25,6 @@ I will be using resources from cplusplus.com
 #include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm> // Transform
-#include <functional> // Plus
 
 using std::cin;
 using std::cout;
@@ -51,17 +49,17 @@ void PrintVector(vector<int> const &theVector) {
   cout << "]";
 }
 /*********************************************************
- *  CorrectVector() is a helper function for Sum(). When
- *  computing the sum, I don't manage a carrying digit to
- *  add to the next highest digit value. This function
- *  is what fixes that error. 
- *  NOTE: this can also be used to correct something like
- *        [8,16,24,32] to [9,8,7,2] for multiplication 
- *  Param:
- *      theVector -- the vector that needs correction
+ * CorrectVector() is a helper function for Sum(). When
+ * computing the sum, I don't manage a carrying digit to
+ * add to the next highest digit value. This function
+ * is what fixes that error. 
+ * NOTE: this can also be used to correct something like
+ *       [8,16,24,32] to [9,8,7,2] for multiplication 
+ * Param:
+ *     theVector -- the vector that needs correction
  * 
- *      e.g. -- [6, 6, 6] + [6, 6, 6] = [12, 12, 12]
- *      After Correction: [12, 12, 12] = [1, 3, 3, 2] 
+ *     e.g. -- [6, 6, 6] + [6, 6, 6] = [12, 12, 12]
+ *     After Correction: [12, 12, 12] = [1, 3, 3, 2] 
  ********************************************************/
 void CorrectVector(vector<int> &theVector) {
   for (unsigned int i = theVector.size()-1; i != 0; --i) {
@@ -80,6 +78,19 @@ void CorrectVector(vector<int> &theVector) {
   }
 }
 
+/***************************************************
+ * E() multiplies a vector by a power of 10. Meaning
+ * the function appends an appropriate number of 0s
+ * to the end of a vector. This function passes the
+ * vector to modify by reference for simplicity.
+ * Params:
+ *      a -- the vector to add 0s to
+ *  power -- the number of 0s to add.
+ **************************************************/
+vector<int> E(vector<int> &a, int power) {
+ //TODO: this.
+ return a;
+}
 /***********************************************************
  * Sum() will compute the sum of two numbers where indiv-
  * idual values are stored in vectors. See "CorrectVector()"
@@ -101,7 +112,6 @@ vector<int> Sum(vector<int> const &a, vector<int> const &b) {
   for (unsigned int i = 0; i < a.size(); ++i) {
     sum[i] += b[i];
   }
-  
   // Fix the lack of carrying digits.
   cout << "Correcting the computed sum of ...";
   PrintVector(sum);
@@ -111,6 +121,24 @@ vector<int> Sum(vector<int> const &a, vector<int> const &b) {
   cout << endl;
   return sum;
 }
+
+/**************************************************************
+ * VectorDigitProduct() multiplies an entire vector by a single
+ * integer digit, and returns the product vector.
+ * Params:
+ *       a -- the vector used as a factor
+ *   digit -- the integer to multiply by
+ *************************************************************/
+vector<int> VectorDigitProduct(vector<int> a, int digit) {
+  // TODO: TEST THIS FUNCTION
+  for (int i = 0; i < a.size(); ++i) {
+    a.at(i) *= digit;
+  }
+  // Fix the carry over issues with the helper function. 
+  CorrectVector(a);
+  return a; 
+}
+
 /*********************************************************
  * BruteForceMultiply() implements the basic algorithm for
  * digit multiplication that many young kids learn in
@@ -130,7 +158,6 @@ vector<int> BruteForceMultiply(vector<int> const &a, vector<int> const &b) {
     }
   }
 
-
   return product; 
 }
 
@@ -146,7 +173,7 @@ vector<int> BruteForceMultiply(vector<int> const &a, vector<int> const &b) {
  *  x1 = a1*b0+b1*a0
  *  x0 = a0*b0
  * 
- * Time Efficincy: n^(logbase(2,3)) ~= n^(1.58)
+ * Time Efficiency: n^(logbase(2,3)) ~= n^(1.58)
  *  
  * Params:
  *     a -- the first factor
