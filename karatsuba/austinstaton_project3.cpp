@@ -62,17 +62,18 @@ void PrintVector(vector<int> const &theVector) {
  *     After Correction: [12, 12, 12] = [1, 3, 3, 2] 
  ********************************************************/
 void CorrectVector(vector<int> &theVector) {
-  for (unsigned int i = theVector.size()-1; i != 0; --i) {
-    if (theVector.at(i) > 9 && i != 0) {
+  for (unsigned int i = theVector.size()-1; i != -1; --i) {
+    if (theVector.at(i) > 9 && i == 0) {
+      int big = theVector.at(i) / 10;
+      int little = theVector.at(i) % 10;
+      theVector.at(i) = little;
+      theVector.insert(theVector.begin(), little);
+      theVector.at(i) = big;
+    }
+    else if (theVector.at(i) > 9 && i != 0) {
       int big = theVector.at(i) / 10;
       int little = theVector.at(i) % 10;
       theVector.at(i-1) += big;
-      theVector.at(i) = little;
-    }
-    else if (theVector.at(i) > 9 && i == 0) {
-      int big = theVector.at(i) / 10;
-      int little = theVector.at(i) % 10;
-      theVector.insert(theVector.begin(), big);
       theVector.at(i) = little;
     }
   }
@@ -88,9 +89,16 @@ void CorrectVector(vector<int> &theVector) {
  *  power -- the number of 0s to add.
  **************************************************/
 vector<int> E(vector<int> &a, int power) {
- //TODO: this.
- return a;
+  cout << "The vector: ";
+  PrintVector(a);
+  cout << " * 10^ " << power << " = ";
+  for (int i = 0; i < power; ++i) {
+    a.insert(a.end(), 0);
+  }
+  PrintVector(a);
+  return a;
 }
+
 /***********************************************************
  * Sum() will compute the sum of two numbers where indiv-
  * idual values are stored in vectors. See "CorrectVector()"
@@ -218,9 +226,6 @@ int main(int argc, char *argv[]) {
       a.insert(a.begin(), 0);
     }
   }
-
-  vector<int> sum = Sum(a,b);
-  cout << endl;
   
   /*
   vector<int> bf = BruteForceMultiply(a, b);
