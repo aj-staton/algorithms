@@ -159,13 +159,13 @@ vector<int> E(vector<int> &a, int power) {
 vector<int> Sum(vector<int> &a, vector<int> &b) {
   BalanceVectorSize(a, b);
 
-  // Logging
+  /* Logging
   cout << "Computing the sum of...";
   PrintVector(a);
   cout << " + ";
   PrintVector(b);
   cout <<  " = " << endl;
-  // EndLogging
+  // EndLogging */
 
   vector<int> sum = a; 
   for (unsigned int i = a.size()-1; i != -1; --i) {
@@ -173,9 +173,29 @@ vector<int> Sum(vector<int> &a, vector<int> &b) {
   }
   // Fix the lack of carrying digits.
   CorrectVector(sum);
-  PrintVector(sum);
   cout << endl;
   return sum;
+}
+/***************************************************
+ * Difference() computes the difference between the
+ * "numbers" passed in as parameters. It does this
+ * identically to that of Sum(), expect using '-='
+ * instead of '+='.
+ * Note: this computes A-B.
+ * Params:
+ *     a -- the minuend vector
+ *     b -- the subtrahend vector
+ **************************************************/
+vector<int> Difference(vector<int> &a, vector<int> &b) {
+  BalanceVectorSize(a, b);
+  vector<int> diff = a; 
+  for (unsigned int i = a.size()-1; i != -1; --i) {
+    diff[i] -= b[i];
+  }
+  // Fix the lack of carrying digits.
+  CorrectVector(diff);
+  cout << endl;
+  return diff;
 }
 
 /**************************************************************
@@ -203,7 +223,7 @@ vector<int> VectorDigitProduct(vector<int> a, int digit) {
  *     a -- the first factor
  *     b -- the second factor
  ********************************************************/
-vector<int> BruteForceMultiply(vector<int> &a, vector<int> &b) {
+vector<int> BruteForceMultiply(vector<int> a, vector<int> b) {
   BalanceVectorSize(a,b);
   vector<int> product(a.size(), 0); // Make a vector equal in length, equal to 0.
   vector<int> temp;
@@ -229,21 +249,59 @@ vector<int> BruteForceMultiply(vector<int> &a, vector<int> &b) {
  * putationally expensive work more often, while doing
  * MORE computationally expensive work less often. The
  * algorithm computes this tradeoff with algebra:
- * a*b = x2*10^2m + x1*10^m + x0
- *  x2 = a1*b1
- *  x1 = a1*b0+b1*a0
- *  x0 = a0*b0
- * 
- * Time Efficiency: n^(logbase(2,3)) ~= n^(1.58)
- *  
+ * a*b = c2*10^2m + c1*10^m + c0
+ *  c2 = a1*b1
+ *  c1 = a1*b0+b1*a0
+ *  c0 = a0*b0
+ *  --Time Efficiency: n^(logbase(2,3)) ~= n^(1.58)
  * Params:
  *     a -- the first factor
  *     b -- the second factor
  ********************************************************/
-vector<int> KaratsubaMultiply(vector<int> const &a, vector<int> const &b) {
-  vector<int> product;
-  return product;
-
+vector<int> KaratsubaMultiply(vector<int> a, vector<int> b) {
+  BalanceVectorSize(a, b);
+  int n = a.size(); // 'n' i.e. input size
+  int m = n/2;
+  vector<int> a1, b1, a0, b0;
+  // Split vectors to a1,b1,a0,b0.
+  for (int i = 0; i < m; ++i) {
+    a1.push_back(a.at(i));
+    b1.push_back(b.at(i));
+  }
+  for (int i = m; i < n; i++) {
+    a0.push_back(a.at(i));
+    b0.push_back(b.at(i));
+  }
+  // Logging
+  cout << "Karatsuba Splits...\na1: ";
+  PrintVector(a1);
+  cout << "\na0: ";
+  PrintVector(a0);
+  cout << "\nb1: ";
+  PrintVector(b1);
+  cout << "\nb0: ";
+  PrintVector(b0);
+  cout << endl;
+  // End logging 
+  if (a.size() == 1) {
+    return a;
+  }
+  vector<int> c2 = KaratsubaMultiply(a1, b1);
+  vector<int> c0 = KaratsubaMultiply(a0, b0);
+  // Calculate c1
+  vector<int> sum1 = Sum(a0,a1);
+  vector<int> sum2 = Sum(b0,b1);
+  vector<int> pro = KaratsubaMultiply(sum1, sum2);
+  vector<int> diff = Difference(pro, c2);
+  vector<int> c1 = Difference(diff, c0);
+  // vector<int> c1 = KaratsubaMultiply(Sum(a1, b0), Sum(a0, b1));
+  // Work to calculate a*b
+  vector<int> first_term = E(c2, 2*m);
+  vector<int> second_term = E(c1, m);
+  vector<int> first_and_second = Sum(first_term, second_term);
+  vector<int> answer = Sum(first_and_second, c0);
+  RemoveZeros(answer);
+  return answer;
 }
 
 /********************* Execution Function *******************/
@@ -260,21 +318,22 @@ int main(int argc, char *argv[]) {
   for (unsigned int i = split_position + 1; i < input.length(); ++i) {
     b.push_back(input.at(i) - 48); // ASCII integers start at 48.
   }
-  cout << "A: ";
+  cout << "****Inputs****\nA: ";
   PrintVector(a);
   cout << endl;
   cout << "B: ";
   PrintVector(b);
-  cout << endl;
-  
+  cout << "\n";
+
   vector<int> bf = BruteForceMultiply(a, b);
   cout << "B: ";
   PrintVector(bf);
-  cout << endl;
-
-  /*
+  cout << "\n\n\n\n\n\n";
+  
   vector<int> k = KaratsubaMultiply(a,b);
-  cout << "K: " << PrintVector(k) << endl; 
-  */
+  cout << "\n\n\n ";
+  PrintVector(k);
+  cout << endl; 
+  
   return 0;
 }
