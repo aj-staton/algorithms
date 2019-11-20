@@ -25,18 +25,14 @@ I will be using resources from cplusplus.com
 #include <iostream>
 #include <string>
 #include <vector>
-/*
-using std::cin;
-using std::cout;
-using std::endl;
-using std::vector;
-using std::string;
-*/
+
 using namespace std;
 
 /*********************************************************
  * PrintVector() is a helper function to deliver the large
  * numbers to standard output.
+ * PrintVectorOutput() is the function that prints to the
+ * formatting expectations of this project.
  * Param:
  *     theVector -- the vector to be printed.
  ********************************************************/
@@ -49,6 +45,11 @@ void PrintVector(vector<int> const &theVector) {
     }
   }
   cout << "]";
+}
+void PrintVectorOutput(vector<int> const &theVector) {
+  for (unsigned int i = 0; i < theVector.size(); ++i) {
+    cout << theVector.at(i);
+  }
 }
 /******************************************************
  * BalanceVectorSize() adds leading zeros to the front
@@ -93,14 +94,12 @@ void RemoveZeros(vector<int> &a) {
   // Leave if the array is filled with 0's. 
   // We need to only have ONE zero.
   if (first_real_number == -1) {
-    for (int i = 0; i < a.size() -1; ++i) {
+    a.erase(a.begin(), a.begin()+(a.size()-1));
+  } else {
+  // Delete the non-significant digits.
+    for (int i = 0; i < first_real_number; ++i) {
       a.erase(a.begin());
     }
-    return;
-  }
-  // Delete the non-significant digits.
-  for (int i = 0; i < first_real_number; ++i) {
-    a.erase(a.begin());
   }
 }
 /*********************************************************
@@ -171,7 +170,8 @@ vector<int> Sum(vector<int> &a, vector<int> &b) {
 /***************************************************
  * Difference() computes the difference between the
  * "numbers" passed in as parameters.
- * NOTE: this computes A-B.
+ * NOTE: this computes A-B. where B cannt be larger
+ *       than A.
  * Params:
  *     a -- the minuend vector
  *     b -- the subtrahend vector
@@ -190,6 +190,7 @@ vector<int> Difference(vector<int> a, vector<int> b) {
       diff[i] -= b[i];
     }
   }
+  RemoveZeros(diff);
   CorrectVector(diff);
   return diff;
 }
@@ -278,20 +279,20 @@ vector<int> KaratsubaMultiply(vector<int> a, vector<int> b, string indent) {
     b0.push_back(b.at(i));
   }
 
-  vector<int> c2 = KaratsubaMultiply(a1, b1, indent + "  ");
+  vector<int> c2 = KaratsubaMultiply(a1, b1, indent + "    ");
   CorrectVector(c2);
-  vector<int> c0 = KaratsubaMultiply(a0, b0, indent + "  ");
+  vector<int> c0 = KaratsubaMultiply(a0, b0, indent + "    ");
   CorrectVector(c0);
+
   // Calculate c1
   vector<int> sum1 = Sum(a0,a1);
   vector<int> sum2 = Sum(b0,b1);
-  vector<int> pro = KaratsubaMultiply(sum1, sum2, indent + "  ");
-  
+  vector<int> pro = KaratsubaMultiply(sum1, sum2, indent + "    ");
   vector<int> diff = Difference(pro, c2);
   CorrectVector(diff);
-
   vector<int> c1 = Difference(diff, c0);
   CorrectVector(c1);
+  
   // Work to calculate a*b
   vector<int> first_term = E(c2, 2*m);
   CorrectVector(first_term);
@@ -303,6 +304,8 @@ vector<int> KaratsubaMultiply(vector<int> a, vector<int> b, string indent) {
   CorrectVector(answer);
   return answer;
 }
+
+
 
 /********************* Execution Function *******************/
 int main(int argc, char *argv[]) {
@@ -319,29 +322,14 @@ int main(int argc, char *argv[]) {
     b.push_back(input.at(i) - 48); // ASCII integers start at 48.
   }
 
-  ///*
-  cout << "****Inputs****\nA: ";
-  PrintVector(a);
-  cout << endl;
-  cout << "B: ";
-  PrintVector(b);
-  cout << "\n";
-  //*/
-
-  /*
-  vector<int> diff = Difference(a, b);
-  cout << endl;
-  PrintVector(diff);
-  */
-  
   vector<int> bf = BruteForceMultiply(a, b);
   cout << "B: ";
-  PrintVector(bf);
+  PrintVectorOutput(bf);
   cout << "\n";
   
   vector<int> k = KaratsubaMultiply(a,b, "");
   cout << "K: ";
-  PrintVector(bf);
+  PrintVectorOutput(bf);
   cout << "\n"; 
   
   return 0;
