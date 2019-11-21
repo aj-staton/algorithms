@@ -1,0 +1,16 @@
+To check uf is a palindrome:
+  If the string.lenght() = 1
+     its a palindrome
+  if the string.length() = 2
+     are the characters the same?
+
+  if length > 2:
+     are the outside charcters the same, and then is "the middle" a palindrome
+     * RECURSION FLAVOR*
+
+Stage 1:
+  make a 2d table (all length substring values, then booleans), determining if a  string is a palindrome
+Stage 2:
+  try to get the number of cuts
+Stage 3:
+  "if you can get the number, then yuo very likely have code that can efficiently insert | into the appropriate places."
