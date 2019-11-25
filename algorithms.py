@@ -1,6 +1,5 @@
 '''
-This file serves to store common algorithims that any Computing student
-should know.
+This file serves to store common algorithims.
 
 None of these algorithms are my own thought.
 
