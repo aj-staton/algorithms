@@ -12,6 +12,7 @@ I will be using resources from cplusplus.com.
 #include <utility>
 #include <vector>
 #include <iterator>
+#include <algorithm>
 
 using namespace std;
 
@@ -32,7 +33,6 @@ void PrintVector(vector<T> const &theVector) {
   }
   cout << "]";
 }
-
 /******************************************************
  * isPalindrome() will check to see if a word is a
  * Palindrome. Meaning, are the letters in the word 
@@ -45,8 +45,8 @@ void PrintVector(vector<T> const &theVector) {
  *   indent -- only used to track recursion depth for
  *             output formatting.
  *****************************************************/
-bool isPalindrome(string word, string indent) {
-  if (word.length() == 1) {
+bool isPalindrome(string word) {
+  if (word.length() == 1 || word.length() == 0) {
     return true;
   } else if (word.length() == 2) {
     if (word.at(0) == word.at(1)) {
@@ -55,15 +55,25 @@ bool isPalindrome(string word, string indent) {
   } else {
   // Check to see if the first and last charaters are the same.
   // if they aren't, we know the word isn't a palindrome.
-    // cout << indent << word << endl; 
+    // cout << word << endl; 
     if (word.at(0) == word.at(word.length()-1)){
-      return isPalindrome(word.substr(1, word.length()-2), "  ");
+      // TODO: make this faster
+      return isPalindrome(word.substr(1, word.length()-2));
     } else {
       return false;
     }
   }
 }
 
+int numCuts(string word) {
+  if (word.length() == 1) {
+    return 0;
+  } else if (word.length() == 2 && word.at(0) == word.at(1)) {
+    return 0;
+  } else {
+    return 1 + numCuts(word.substr(1));
+  }
+}
 /**********************EXECUTION**********************/
 int main(int argc, char *argv[]) {
   string line;
@@ -71,28 +81,46 @@ int main(int argc, char *argv[]) {
     // 1. Read the input.
     string input = line;
     cout << "INPUT: " << input << endl;
-    //NOTE: substr(x,y) gets Y number of characters after X.
-    //string addend1 = input.substr(0, delim1);
-
     // 2. Create a solution table so we can easily lookup our
     //    pre-computed values.
-    vector<bool> solution_list_bool;
-    vector<string> solution_list_string;
-    for (int i = 0; i < input.length(); ++i) {
-      // 
-      if (i == 0) {
-        solution_list_bool.push_back(true);
-        solution_list_string.push_back(input.substr(0,1));
-      } else {
-        string temp = input.substr(0, i+1);
-        // cout << temp << endl;
-        solution_list_string.push_back(temp);
-        solution_list_bool.push_back(isPalindrome(temp,""));
+    vector<int> num_cuts(input.length()); // The number of cuts it takes create a palidrome
+    vector<string> solution_strings(input.length()); // Potential substrings
+    vector<int> index_of_last_cut(input.length()); // The index of the last cut in the substr.
+  
+    for (int i = 1; i < input.length()+1; ++i) {
+      string temp = input.substr(0, i);
+      solution_strings[temp.length()] = temp;
+      cout << "OUTSIDE: " << temp << endl;
+      // Pre-Compute Early table lookup values.
+      if (temp.length() == 1 || temp.length() == 0) {
+        num_cuts[temp.length()] = 0;
+        index_of_last_cut[temp.length()-1] = 0;
+      } else if (temp.length() == 2 && temp.at(0) == temp.at(1)) {
+        num_cuts[temp.length()] = 0;
+        index_of_last_cut[temp.length()] = 0;
+      } else if (temp.length() == 2 && temp.at(0) != temp.at(1)){
+        num_cuts[temp.length()] = 1;
       }
+      // Loop to find the last cut in the string.
+      for (int j = 0; j < temp.length(); ++j) {
+        int minimum_cuts;
+        string temp2 = temp.substr(j, temp.length());
+        cout << "  IN: "  << temp2; 
+        if (isPalindrome(temp2)) {
+          cout << " PALINDROME and the cost to cut '";
+          string temp3 = input.substr(0, j);
+          cout << temp3 << "' is ";
+          cout << num_cuts[temp3.length()];
+         // We know for 'ab|b', that 'b' is a palindrome. Lookup cuts for 'ab'.
+        }
+        cout << endl;
+      }
+      cout << "\n\n";
     }
-    PrintVector(solution_list_bool);
+
+    //PrintVector(num_cuts);
     cout << "\n";
-    PrintVector(solution_list_string);
+    //PrintVector(solution_strings);
     cout << "\n\n";
   }
   return 0;
