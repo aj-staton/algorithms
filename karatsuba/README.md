@@ -10,3 +10,12 @@ This program multiplies these massive numbers. There are two approaches used to 
 * the Karatsuba algorithm
 
 ## Usage
+```bash
+$ g++ - Wall austinstaton_project3.cpp -o [youroutput]
+$ ./[youroutput] < input1.in
+```
+This program reads from standard input. So, if no input file is redirected, type an orignal cryptarithmetic puzzle to solve after execution. This input must be in the format of:
+   [addend]+[addend]=[sum] (e.g. send+more=money). This project focused on the algorithmic problem-solving, rather than bounds checking and error detection.
+   
+### Limitations
+The project is not fully complete. In the subtraction of two vectors, the minutend vector naively reduces the next signficant digit to "borrow" a value, even if that digit is 0. This can create errors in the Karatsuba Algorithm.
