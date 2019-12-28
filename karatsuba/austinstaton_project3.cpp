@@ -32,7 +32,7 @@ using namespace std;
  * PrintVector() is a helper function to deliver the large
  * numbers to standard output.
  * PrintVectorOutput() is the function that prints to the
- * formatting expectations of this project.
+ * formatting expectations of the project.
  * Param:
  *     theVector -- the vector to be printed.
  ********************************************************/
@@ -180,15 +180,30 @@ vector<int> Difference(vector<int> a, vector<int> b) {
   BalanceVectorSize(a, b);
   vector<int> diff = a; 
   for (unsigned int i = a.size()-1; i != -1; --i) {
+    /*
     if (b[i] > a[i] && i != 0) {
       // Remove 10 from the next significant digit
-      --diff[i-1];
-      diff[i] += 10;
-      diff[i] -= b[i];
+      // ONLY if possible.
+      if (diff[i-1]-1 >= 0) {  
+        --diff[i-1];
+        diff[i] += 10;
+        diff[i] -= b[i];
+      }
+      else {
+        cout << "BROKEN" << endl;
+        PrintVector(diff);
+        cout << i << endl;
+        PrintVector(b);
+        cout << endl;
+        --diff[i-2];
+        diff[i-1] += 10; 
+      }
     }
     else {
       diff[i] -= b[i];
     }
+    */
+    diff[i] -= b[i];
   }
   RemoveZeros(diff);
   CorrectVector(diff);
@@ -321,7 +336,8 @@ int main(int argc, char *argv[]) {
   for (unsigned int i = split_position + 1; i < input.length(); ++i) {
     b.push_back(input.at(i) - 48); // ASCII integers start at 48.
   }
-
+  
+  
   vector<int> bf = BruteForceMultiply(a, b);
   cout << "B: ";
   PrintVectorOutput(bf);
@@ -329,8 +345,20 @@ int main(int argc, char *argv[]) {
   
   vector<int> k = KaratsubaMultiply(a,b, "");
   cout << "K: ";
-  PrintVectorOutput(bf);
+  PrintVectorOutput(k);
   cout << "\n"; 
   
+  /*
+  vector<int> diff;
+  diff.push_back(1);
+  diff.push_back(0);
+  diff.push_back(0);
+  diff.push_back(0);
+  vector<int> diff2; 
+  diff2.push_back(8);
+
+  PrintVector(Difference(diff, diff2));
+  cout << endl;
+  */
   return 0;
 }
